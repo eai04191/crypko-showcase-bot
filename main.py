@@ -94,8 +94,8 @@ def lambda_handler(event, context):
     print(crypko['id'])
     details = get_crypko_details(crypko['id'])
     print(details)
-    if len(details['bio']) > 175:
-        bio = details['bio'][:175] + '……'
+    if len(details['bio']) > 90:
+        bio = details['bio'][:90] + '……'
     else:
         bio = details['bio']
     tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (details['name'], bio, str(details['id']))
