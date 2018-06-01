@@ -92,7 +92,7 @@ def lambda_handler(event, context):
     page = random.randrange(maxPage)
     crypko = get_random_crypko(page)
     print(crypko['id'])
-    details = get_crypko_details(140121)
+    details = get_crypko_details(crypko['id'])
     print(details)
     if len(details['bio']) > 175:
         bio = details['bio'][:175] + '……'
