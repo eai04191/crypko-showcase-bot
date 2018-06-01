@@ -38,7 +38,7 @@ def get_crypko_details(id):
     response = requests.get(url)
     html = response.text
     name = re.search('<meta name="twitter:title" content="(.*?)">',html).group(1)
-    bio = re.search('<meta name="twitter:description" content="(.*?)">',html).group(1)
+    bio = re.search('<meta name="twitter:description" content="([\s\S]*?)">',html).group(1)
     image_url = re.search('<img src="(.*?)">',html).group(1)
     details = {
         'id': id,
