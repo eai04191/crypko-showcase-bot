@@ -1,5 +1,7 @@
 # CrypkoShowcaseBot
 
+[Crypko](https://crypko.ai/#/)から名前とプロフィールの設定してあるCrypkoを検索してランダムに紹介するbotです。
+
 AWS Lambdaで動く
 
 ---
