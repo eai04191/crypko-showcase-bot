@@ -123,20 +123,22 @@ def lambda_handler(event, context):
 
     update_profile(crypko_count)
 
+    # @を置換
+    name = details['name'].replace('@', '@ ')
+    bio = details['bio'].replace('@', '@ ')
+
     tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
-        details['name'], details['bio'], str(details['id'])
+        name, bio, str(details['id'])
     )
     print('ツイート: '+tweet_text)
     tweet_success = tweet(tweet_text, details['image_url'])
+
     if tweet_success is False:
         # bioを切り詰める
-        if len(details['bio']) > 90:
-            bio = details['bio'][:90] + '……'
-        else:
-            bio = details['bio']
+        bio = bio[:90] + '……'
 
         tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
-            details['name'], bio, str(details['id'])
+            name, bio, str(details['id'])
         )
         print('切り詰めて再ツイート: '+tweet_text)
         tweet(tweet_text, details['image_url'])
