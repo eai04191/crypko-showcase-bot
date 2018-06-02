@@ -16,7 +16,7 @@ def get_max_page():
     }
     response = requests.get(url, params=query).json()
     max_page = math.ceil(response['totalMatched'] / 12)
-    return max_page
+    return max_page, response['totalMatched']
 
 
 def get_random_crypko(page):
@@ -49,6 +49,27 @@ def get_crypko_details(id):
         'image_url': image_url
     }
     return details
+
+
+def update_profile(count):
+    CK = os.environ['CK']
+    CS = os.environ['CS']
+    AT = os.environ['AT']
+    AS = os.environ['AS']
+
+    url_profile = 'https://api.twitter.com/1.1/account/update_profile.json'
+
+    twitter = OAuth1Session(CK, CS, AT, AS)
+
+    params = {
+        'location': 'Count of Crypkos with name and bio: ' + str(count)
+    }
+    response = twitter.post(url_profile, params=params)
+
+    if response.status_code != 200:
+        print('プロフィールアップデート失敗: %s' % response.text)
+        exit()
+    print('プロフィールアップデート成功')
 
 
 def tweet(text, image_url):
@@ -91,12 +112,16 @@ def tweet(text, image_url):
 
 
 def lambda_handler(event, context):
-    maxPage = get_max_page()
-    page = random.randrange(maxPage)
+    temp = get_max_page()
+    max_page = temp[0]
+    crypko_count = temp[1]
+    page = random.randrange(max_page)
     crypko = get_random_crypko(page)
     print('Crypko #' + str(crypko['id']))
     details = get_crypko_details(crypko['id'])
     print(details)
+
+    update_profile(crypko_count)
 
     tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
         details['name'], details['bio'], str(details['id'])
