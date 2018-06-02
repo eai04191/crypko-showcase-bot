@@ -95,7 +95,7 @@ def lambda_handler(event, context):
     page = random.randrange(maxPage)
     crypko = get_random_crypko(page)
     print('Crypko #' + str(crypko['id']))
-    details = get_crypko_details(75456)
+    details = get_crypko_details(crypko['id'])
     print(details)
 
     tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
