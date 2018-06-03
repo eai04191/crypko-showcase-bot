@@ -5,6 +5,7 @@ import os
 import random
 import requests
 from requests_oauthlib import OAuth1Session
+from xml.sax.saxutils import unescape
 
 
 def get_max_page():
@@ -126,6 +127,10 @@ def lambda_handler(event, context):
     # @を置換
     name = details['name'].replace('@', '@ ')
     bio = details['bio'].replace('@', '@ ')
+    
+    # エスケープを解除
+    name = unescape(name, {'&quot;': '"'})
+    bio = unescape(bio, {'&quot;': '"'})
 
     tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
         name, bio, str(details['id'])
