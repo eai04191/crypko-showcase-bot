@@ -8,6 +8,16 @@ from requests_oauthlib import OAuth1Session
 from xml.sax.saxutils import unescape
 
 
+def get_total_crypko_count():
+    url = 'https://api.crypko.ai/crypkos/search'
+    query = {
+        'category': 'all',
+        'sort': '-id'
+    }
+    response = requests.get(url, params=query).json()
+    return response['totalMatched']
+
+
 def get_max_page():
     url = 'https://api.crypko.ai/crypkos/search'
     query = {
@@ -52,7 +62,7 @@ def get_crypko_details(id):
     return details
 
 
-def update_profile(count):
+def update_profile(named_crypko_count):
     CK = os.environ['CK']
     CS = os.environ['CS']
     AT = os.environ['AT']
@@ -62,8 +72,11 @@ def update_profile(count):
 
     twitter = OAuth1Session(CK, CS, AT, AS)
 
+    crypko_count = get_total_crypko_count()
+    percentage = named_crypko_count / crypko_count * 100.0
+
     params = {
-        'location': 'Count of Crypkos with name and bio: ' + str(count)
+        'location': 'Count of Crypkos with name and bio: %d (%.2f%%)' % (named_crypko_count, percentage)
     }
     response = twitter.post(url_profile, params=params)
 
@@ -118,7 +131,7 @@ def lambda_handler(event, context):
     crypko_count = temp[1]
     page = random.randrange(max_page)
     crypko = get_random_crypko(page)
-    print('Crypko #' + str(crypko['id']))
+    print('Crypko #%d' % crypko['id'])
     details = get_crypko_details(crypko['id'])
     print(details)
 
@@ -127,13 +140,13 @@ def lambda_handler(event, context):
     # @を置換
     name = details['name'].replace('@', '@ ')
     bio = details['bio'].replace('@', '@ ')
-    
+
     # エスケープを解除
     name = unescape(name, {'&quot;': '"'})
     bio = unescape(bio, {'&quot;': '"'})
 
-    tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
-        name, bio, str(details['id'])
+    tweet_text = '%s - %s https://crypko.ai/#/card/%d #crypkoshowcase' % (
+        name, bio, details['id']
     )
     print('ツイート: '+tweet_text)
     tweet_success = tweet(tweet_text, details['image_url'])
@@ -142,8 +155,8 @@ def lambda_handler(event, context):
         # bioを切り詰める
         bio = bio[:90] + '……'
 
-        tweet_text = '%s - %s https://crypko.ai/#/card/%s #crypkoshowcase' % (
-            name, bio, str(details['id'])
+        tweet_text = '%s - %s https://crypko.ai/#/card/%d #crypkoshowcase' % (
+            name, bio, details['id']
         )
         print('切り詰めて再ツイート: '+tweet_text)
         tweet(tweet_text, details['image_url'])
