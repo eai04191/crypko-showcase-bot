@@ -125,6 +125,18 @@ def tweet(text, image_url):
     return True
 
 
+def replace_ng_words(text):
+    ng_words = [
+        '奇形',
+        '原爆'
+    ]
+
+    for ng_word in ng_words:
+        text = text.replace(ng_word, '')
+
+    return text
+
+
 def lambda_handler(event, context):
     temp = get_max_page()
     max_page = temp[0]
@@ -137,9 +149,13 @@ def lambda_handler(event, context):
 
     update_profile(crypko_count)
 
+    # NGワードを置換
+    name = replace_ng_words(details['name'])
+    bio = replace_ng_words(details['bio'])
+
     # @を置換
-    name = details['name'].replace('@', '@ ')
-    bio = details['bio'].replace('@', '@ ')
+    name = name.replace('@', '@ ')
+    bio = bio.replace('@', '@ ')
 
     # エスケープを解除
     name = unescape(name, {'&quot;': '"'})
