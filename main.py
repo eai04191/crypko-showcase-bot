@@ -132,7 +132,7 @@ def replace_ng_words(text):
     ]
 
     for ng_word in ng_words:
-        text = text.replace(ng_word, '')
+        text = text.replace(ng_word, 'xxx')
 
     return text
 
