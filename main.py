@@ -6,6 +6,7 @@ import random
 import requests
 from requests_oauthlib import OAuth1Session
 from xml.sax.saxutils import unescape
+from hashlib import sha1
 
 
 def get_total_crypko_count():
@@ -45,18 +46,17 @@ def get_random_crypko(page):
 
 
 def get_crypko_details(id):
-    url = 'https://s.crypko.ai/c/' + str(id)
-    response = requests.get(url)
-    html = response.text
-    name = re.search(
-        '<meta name="twitter:title" content="(.*?)">', html).group(1)
-    bio = re.search(
-        '<meta name="twitter:description" content="([\s\S]*?)">', html).group(1)
-    image_url = re.search('<img src="(.*?)">', html).group(1)
+    url = f'https://api.crypko.ai/crypkos/{id}/detail'
+    response = requests.get(url).json()
+    noise = response['noise']
+    attrs = response['attrs']
+    image_id = sha1((noise + 'asdasd3edwasd' + attrs).encode()).hexdigest()
+    image_url = f'https://img.crypko.ai/daisy/{image_id}_lg.jpg'
+
     details = {
         'id': id,
-        'name': name,
-        'bio': bio,
+        'name': response['name'],
+        'bio': response['bio'],
         'image_url': image_url
     }
     return details
@@ -156,10 +156,6 @@ def lambda_handler(event, context):
     # @を置換
     name = name.replace('@', '@ ')
     bio = bio.replace('@', '@ ')
-
-    # エスケープを解除
-    name = unescape(name, {'&quot;': '"'})
-    bio = unescape(bio, {'&quot;': '"'})
 
     tweet_text = '%s - %s https://crypko.ai/#/card/%d #crypkoshowcase' % (
         name, bio, details['id']
